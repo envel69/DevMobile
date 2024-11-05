@@ -5,6 +5,12 @@
     "version": "0.2.0",
     "configurations": [
         {
+            "name": "Flutter",
+            "type": "dart",
+            "request": "launch",
+            "program": "lib/main.dart"
+        },
+        {
             "name": "flutterapp",
             "request": "launch",
             "type": "dart"
@@ -20,6 +26,12 @@
             "request": "launch",
             "type": "dart",
             "flutterMode": "release"
+        },
+        {
+            "name": "Flutter Pixel 6 Pro API 34",
+            "request": "launch",
+            "type": "dart",
+            "deviceId": "emulator-5554",
         }
     ]
 }
