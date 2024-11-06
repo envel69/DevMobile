@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:flutterapp/main.dart';
 import 'package:flutterapp/pages/home.page.dart';
 import 'package:flutterapp/pages/register.dart';
+import 'package:flutterapp/service/auth.service.dart';
 
 class MyLoginPage extends StatefulWidget {
   final String title;
@@ -12,49 +12,79 @@ class MyLoginPage extends StatefulWidget {
 }
 
 class _MyLoginPageState extends State<MyLoginPage> {
+  final _formKey = GlobalKey<FormState>();
+  final usernameController = TextEditingController();
+  final passwordController = TextEditingController();
+  final authService = AuthService();
+
+  @override
+  void dispose() {
+    usernameController.dispose();
+    passwordController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _login() async {
+    if (_formKey.currentState?.validate() ?? false) {
+      try {
+        await authService.signIn(
+          usernameController.text,
+          passwordController.text,
+        );
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => MyHomePage(title: 'TinTok')),
+        );
+      } catch (e) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(e.toString())),
+        );
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // appBar: AppBar(
-      //   backgroundColor: Color.fromARGB(227, 255, 0, 149),
-      //   title: Text(widget.title),
-      //   centerTitle: true,
-      // ),
       body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            TextFormField(
-              decoration: const InputDecoration(
-                hintText: 'Nom d\'utilisateur',
+        child: Form(
+          key: _formKey,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              TextFormField(
+                controller: usernameController,
+                decoration: const InputDecoration(
+                  hintText: 'Nom d\'utilisateur',
+                ),
+                // validator: (value) =>
+                //     value!.isEmpty ? 'Entrez votre nom d\'utilisateur' : null,
               ),
-            ),
-            TextFormField(
-              decoration: const InputDecoration(
-                hintText: 'Mot de passe',
+              TextFormField(
+                controller: passwordController,
+                decoration: const InputDecoration(
+                  hintText: 'Mot de passe',
+                ),
+                obscureText: true,
+                // validator: (value) =>
+                //     value!.isEmpty ? 'Entrez votre mot de passe' : null,
               ),
-            ),
-            ElevatedButton(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => MyHomePage(title: 'TinTok'),
-                  ),
-                );
-              },
-              child: const Text('Connexion'),
-            ),
-            TextButton(
-              onPressed: () {
-                Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => MyRegisterPage(title: 'TinTok')));
-              },
-              child: const Text('Tu n\'as pas de compte ? Inscrit-toi ici'),
-            ),
-          ],
+              ElevatedButton(
+                onPressed: _login,
+                child: const Text('Connexion'),
+              ),
+              TextButton(
+                onPressed: () {
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) =>
+                              MyRegisterPage(title: 'TinTok')));
+                },
+                child: const Text('Tu n\'as pas de compte ? Inscrit-toi ici'),
+              ),
+            ],
+          ),
         ),
       ),
     );
