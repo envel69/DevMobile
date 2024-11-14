@@ -104,6 +104,9 @@ class DSS extends StatefulWidget {
 class _DSSState extends State<DSS> {
   final DraggableScrollableController _controller =
       DraggableScrollableController();
+  final TextEditingController _commentController = TextEditingController();
+  List<Map<String, String>> _comments =
+      []; // Liste pour stocker les commentaires
 
   final List<double> snapSize = [0, 0.5, 0.8];
 
@@ -118,15 +121,56 @@ class _DSSState extends State<DSS> {
       snapSizes: snapSize,
       builder: (BuildContext context, ScrollController scrollController) {
         return Container(
-          color: Color.fromARGB(227, 255, 0, 149),
-          child: ListView.builder(
-            controller: scrollController,
-            itemCount: 10,
-            itemBuilder: (context, index) {
-              return ListTile(
-                title: Text('Commentaire ${index + 1}'),
-              );
-            },
+          color: Color.fromARGB(226, 30, 40, 172),
+          child: Column(
+            children: [
+              // Champ de texte pour saisir un commentaire
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: TextField(
+                  controller: _commentController,
+                  decoration: InputDecoration(
+                    labelText: 'Écrivez un commentaire...',
+                    border: OutlineInputBorder(),
+                  ),
+                  maxLines: 3,
+                ),
+              ),
+              // Bouton pour envoyer un commentaire
+              ElevatedButton(
+                onPressed: () {
+                  if (_commentController.text.isNotEmpty) {
+                    final newComment = {
+                      'username': 'User123', // Simuler un nom d'utilisateur
+                      'comment': _commentController.text,
+                    };
+
+                    setState(() {
+                      _comments.add(newComment);
+                    });
+
+                    _commentController
+                        .clear(); // Réinitialiser le champ de texte
+                  }
+                },
+                child: Text('Publier le commentaire'),
+              ),
+              SizedBox(height: 10),
+              // Affichage des commentaires
+              Expanded(
+                child: ListView.builder(
+                  controller: scrollController,
+                  itemCount: _comments.length,
+                  itemBuilder: (context, index) {
+                    final comment = _comments[index];
+                    return ListTile(
+                      title: Text(comment['username']!),
+                      subtitle: Text(comment['comment']!),
+                    );
+                  },
+                ),
+              ),
+            ],
           ),
         );
       },
