@@ -1,36 +1,47 @@
 import 'package:flutter/material.dart';
-import 'package:flutterapp/pages/home.page.dart';
-import 'package:flutterapp/pages/register.page.dart';
 import 'package:flutterapp/service/auth.service.dart';
+import 'home.page.dart';
+import 'login.page.dart';
 
-class MyLoginPage extends StatefulWidget {
+class MyRegisterPage extends StatefulWidget {
   final String title;
 
-  const MyLoginPage({super.key, required this.title});
-
+  const MyRegisterPage({super.key, required this.title});
   @override
-  _MyLoginPageState createState() => _MyLoginPageState();
+  _MyRegisterPageState createState() => _MyRegisterPageState();
 }
 
-class _MyLoginPageState extends State<MyLoginPage> {
+class _MyRegisterPageState extends State<MyRegisterPage> {
   final _formKey = GlobalKey<FormState>();
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
+  final confirmPasswordController = TextEditingController();
+  final usernameController = TextEditingController();
   final authService = AuthService();
 
   @override
   void dispose() {
     emailController.dispose();
     passwordController.dispose();
+    confirmPasswordController.dispose();
+    usernameController.dispose();
     super.dispose();
   }
 
-  Future<void> _login() async {
+  Future<void> _register() async {
     if (_formKey.currentState?.validate() ?? false) {
+      if (passwordController.text != confirmPasswordController.text) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+              content: Text("Les mots de passe ne correspondent pas")),
+        );
+        return;
+      }
       try {
-        await authService.signIn(
+        await authService.signUp(
           emailController.text,
           passwordController.text,
+          usernameController.text,
         );
         Navigator.pushReplacement(
           context,
@@ -57,7 +68,7 @@ class _MyLoginPageState extends State<MyLoginPage> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(
-                    'Connexion',
+                    'Inscription',
                     style: TextStyle(
                       fontSize: 28,
                       fontWeight: FontWeight.bold,
@@ -65,7 +76,6 @@ class _MyLoginPageState extends State<MyLoginPage> {
                     ),
                   ),
                   const SizedBox(height: 30),
-                  // Champ Email
                   TextFormField(
                     controller: emailController,
                     decoration: const InputDecoration(
@@ -75,7 +85,7 @@ class _MyLoginPageState extends State<MyLoginPage> {
                     keyboardType: TextInputType.emailAddress,
                     validator: (value) {
                       if (value == null || value.isEmpty) {
-                        return 'Veuillez entrer votre email';
+                        return 'Veuillez entrer un email';
                       }
                       if (!RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(value)) {
                         return 'Entrez un email valide';
@@ -84,7 +94,20 @@ class _MyLoginPageState extends State<MyLoginPage> {
                     },
                   ),
                   const SizedBox(height: 20),
-                  // Champ Mot de Passe
+                  TextFormField(
+                    controller: usernameController,
+                    decoration: const InputDecoration(
+                      labelText: 'Nom d\'utilisateur',
+                      border: OutlineInputBorder(),
+                    ),
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Veuillez entrer un nom d\'utilisateur';
+                      }
+                      return null;
+                    },
+                  ),
+                  const SizedBox(height: 20),
                   TextFormField(
                     controller: passwordController,
                     decoration: const InputDecoration(
@@ -94,7 +117,7 @@ class _MyLoginPageState extends State<MyLoginPage> {
                     obscureText: true,
                     validator: (value) {
                       if (value == null || value.isEmpty) {
-                        return 'Veuillez entrer votre mot de passe';
+                        return 'Veuillez entrer un mot de passe';
                       }
                       if (value.length < 6) {
                         return 'Le mot de passe doit contenir au moins 6 caractères';
@@ -102,10 +125,27 @@ class _MyLoginPageState extends State<MyLoginPage> {
                       return null;
                     },
                   ),
+                  const SizedBox(height: 20),
+                  TextFormField(
+                    controller: confirmPasswordController,
+                    decoration: const InputDecoration(
+                      labelText: 'Confirmer le mot de passe',
+                      border: OutlineInputBorder(),
+                    ),
+                    obscureText: true,
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Veuillez confirmer votre mot de passe';
+                      }
+                      if (value != passwordController.text) {
+                        return 'Les mots de passe ne correspondent pas';
+                      }
+                      return null;
+                    },
+                  ),
                   const SizedBox(height: 30),
-                  // Bouton Connexion
                   ElevatedButton(
-                    onPressed: _login,
+                    onPressed: _register,
                     style: ElevatedButton.styleFrom(
                       padding: const EdgeInsets.symmetric(
                         vertical: 16.0,
@@ -116,23 +156,22 @@ class _MyLoginPageState extends State<MyLoginPage> {
                       ),
                     ),
                     child: const Text(
-                      'Connexion',
+                      'Inscription',
                       style: TextStyle(fontSize: 18),
                     ),
                   ),
                   const SizedBox(height: 20),
-                  // Bouton d'inscription
                   TextButton(
                     onPressed: () {
                       Navigator.pushReplacement(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => MyRegisterPage(title: 'TinTok'),
+                          builder: (context) => MyLoginPage(title: 'TinTok'),
                         ),
                       );
                     },
                     child: const Text(
-                      'Tu n\'as pas de compte ? Inscris-toi ici',
+                      'Tu as déjà un compte ? Connecte-toi ici',
                       style: TextStyle(
                         fontSize: 16,
                         color: Colors.blueAccent,

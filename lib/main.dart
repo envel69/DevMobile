@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutterapp/pages/home.page.dart';
 import 'package:flutterapp/pages/login.page.dart';
-import 'package:flutterapp/pages/profile.dart';
+import 'package:flutterapp/pages/profile.page.dart';
 // import 'package:flutterapp/pages/video_background.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';

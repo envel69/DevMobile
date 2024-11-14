@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutterapp/pages/profile.dart';
+import 'package:flutterapp/pages/profile.page.dart';
 import 'package:flutterapp/pages/video_background.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -20,7 +20,6 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Color.fromARGB(227, 255, 0, 149),
         title: Text(widget.title),
         centerTitle: true,
         actions: [
@@ -38,7 +37,7 @@ class _MyHomePageState extends State<MyHomePage> {
           ],
         ),
       ),
-      body: const HomeScreen(),
+      body: HomeScreen(),
     );
   }
 }
@@ -49,31 +48,44 @@ class HomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     GlobalKey<_DSSState> _scaffoldKey = GlobalKey<_DSSState>();
+    bool isNavigating =
+        false; // Variable locale pour vérifier si la navigation est en cours
 
     return Stack(
       children: [
         // const VideoPlayerWidget(),
 
-        GestureDetector(onVerticalDragUpdate: (details) {
-          if (details.delta.dy <= -10) {
-            print('Affichage des commentaires');
-            _scaffoldKey.currentState!._controller.animateTo(0.8,
-                duration: Duration(milliseconds: 500), curve: Curves.easeIn);
-          } else if (details.delta.dy >= 10) {
-            print('profil');
+        GestureDetector(
+          onVerticalDragUpdate: (details) {
+            if (details.delta.dy <= -10) {
+              print('Affichage des commentaires');
+              _scaffoldKey.currentState!._controller.animateTo(0.8,
+                  duration: Duration(milliseconds: 500), curve: Curves.easeIn);
+            } else if (details.delta.dy >= 10) {
+              print('profil');
 
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => ProfilePage()),
-            );
-          }
-        }, onHorizontalDragUpdate: (dtl) {
-          if (dtl.delta.dx <= -10) {
-            print('dislike');
-          } else if (dtl.delta.dx >= 10) {
-            print('like');
-          }
-        }),
+              // Vérifier si une navigation est déjà en cours
+              if (!isNavigating) {
+                isNavigating = true; // Marquer la navigation comme en cours
+
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => ProfilePage()),
+                ).then((_) {
+                  // Lorsque la page Profil est fermée, réinitialiser le flag de navigation
+                  isNavigating = false;
+                });
+              }
+            }
+          },
+          onHorizontalDragUpdate: (dtl) {
+            if (dtl.delta.dx <= -10) {
+              print('dislike');
+            } else if (dtl.delta.dx >= 10) {
+              print('like');
+            }
+          },
+        ),
         DSS(
           key: _scaffoldKey,
         ), // Intégration de DSS
